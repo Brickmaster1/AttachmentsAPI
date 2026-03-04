@@ -24,26 +24,65 @@ configurations {
     }
 }
 
+fabricApi {
+    configureTests {
+        createSourceSet = true
+        modId = "${project.mod_id}-gametest"
+        enableGameTests = true
+        enableClientGameTests = true
+        eula = true
+    }
+}
+
+sourceSets {
+    gametest {
+        java.srcDirs += project(':common').sourceSets.gametest.java.srcDirs
+        resources.srcDirs += project(':common').sourceSets.gametest.resources.srcDirs
+        compileClasspath += project(':common').sourceSets.gametest.compileClasspath
+        runtimeClasspath += project(':common').sourceSets.gametest.runtimeClasspath
+    }
+}
+
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    modImplementation("net.fabricmc:fabric-loader:${rootProject.fabric_loader_version}")
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
+    modImplementation("net.fabricmc.fabric-api:fabric-api:${rootProject.fabric_api_version}")
 
-    modImplementation "dev.architectury:architectury-fabric:$rootProject.architectury_api_version"
+    modImplementation("dev.architectury:architectury-fabric:${rootProject.architectury_api_version}")
 
-    include(modImplementation("com.github.Chocohead:Fabric-ASM:v2.3")) {
+    include(modImplementation("com.github.Chocohead:Fabric-ASM:v${fabric_asm_version}")) {
         exclude (group: "net.fabricmc.fabric-api")
     }
+
+    gametestImplementation("org.reflections:reflections:${reflections_version}")
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 }
 
-processResources {
-    inputs.property 'version', project.version
+var replaceProperties = [
+        "group": project.group,
+        "version": project.version,
+        "mod_id": project.mod_id,
+        "mod_name": project.mod_name,
+        "mod_license": project.mod_license,
+        "mod_repository": project.mod_repository,
 
-    filesMatching('fabric.mod.json') {
-        expand version: project.version
+        "minecraft_version": project.minecraft_version,
+        "architectury_version": project.architectury_api_version
+]
+processResources {
+    inputs.properties replaceProperties
+
+    filesMatching(['fabric.mod.json']) {
+        expand replaceProperties
+    }
+}
+processGametestResources {
+    inputs.properties replaceProperties
+
+    filesMatching(['fabric.mod.json']) {
+        expand replaceProperties
     }
 }
 

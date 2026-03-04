@@ -1,37 +1,28 @@
 {
   "schemaVersion": 1,
-  "id": "attachmentsapi",
+  "id": "${mod_id}",
   "version": "${version}",
-  "name": "AttachmentsAPI",
-  "description": "",
-  "authors": [
-    ""
-  ],
+  "name": "${mod_name}",
   "contact": {
-    "homepage": ""
+    "sources": "${mod_repository}"
   },
-  "license": "All-Rights-Reserved",
-  "icon": "assets/attachmentsapi/icon.png",
+  "license": "${mod_license}",
+  "icon": "assets/${mod_id}/icon.png",
   "environment": "*",
   "entrypoints": {
     "main": [
-      "dev.sygii.attachmentsapi.fabric.AttachmentsAPIFabric"
+      "${group}.${mod_id}.fabric.${mod_name}Fabric"
     ],
     "client": [
-      "dev.sygii.attachmentsapi.fabric.client.AttachmentsAPIFabricClient"
+      "${group}.${mod_id}.fabric.client.${mod_name}FabricClient"
     ]
   },
   "mixins": [
-    "attachmentsapi.mixins.json"
+    "${mod_id}.mixins.json"
   ],
   "depends": {
-    "fabricloader": ">=0.18.4",
-    "minecraft": "~1.20.1",
-    "java": ">=17",
-    "architectury": ">=9.2.14",
-    "fabric-api": "*"
-  },
-  "suggests": {
-    "another-mod": "*"
+    "fabric": "*",
+    "minecraft": ">=${minecraft_version}",
+    "architectury": ">=${architectury_version}"
   }
 }

@@ -2,9 +2,36 @@ plugins {
     id 'com.github.johnrengelman.shadow'
 }
 
+sourceSets {
+    gametest {
+        java {
+            compileClasspath += sourceSets.main.compileClasspath
+            runtimeClasspath += sourceSets.main.runtimeClasspath
+        }
+        resources {
+            srcDirs = ["src/gametest/resources"]
+        }
+    }
+}
+
 loom {
     forge {
-        mixinConfig "attachmentsapi.mixins.json"
+        mixinConfig "${mod_id}.mixins.json"
+    }
+
+    runs {
+        gameTestServer {
+            server()
+            name = "GameTest Server"
+            vmArgs "-Dforge.enableGameTest=true"
+            vmArgs "-Dforge.enabledGameTestNamespaces=${mod_id}-gametest"
+            source sourceSets.gametest
+        }
+//        gameTestClient {
+//            client()
+//            name = "GameTest Client"
+//            vmArgs "-Dforge.enableGameTest=true"
+//        }
     }
 }
 
@@ -31,21 +58,43 @@ configurations {
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:$rootProject.forge_version"
+    forge("net.minecraftforge:forge:${rootProject.forge_version}")
 
-    modImplementation "dev.architectury:architectury-forge:$rootProject.architectury_api_version"
+    modImplementation("dev.architectury:architectury-forge:${rootProject.architectury_api_version}")
 
-    include(modImplementation("com.github.LudoCrypt:Forge-Extended-ASM:2.2.0"))
+    include(modImplementation("com.github.LudoCrypt:Forge-Extended-ASM:${forge_asm_version}"))
+
+    gametestImplementation("org.reflections:reflections:${reflections_version}")
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
 }
 
-processResources {
-    inputs.property 'version', project.version
+var replaceProperties = [
+        "group": project.group,
+        "version": project.version,
+        "mod_id": project.mod_id,
+        "mod_name": project.mod_name,
+        "mod_license": project.mod_license,
+        "mod_repository": project.mod_repository,
 
-    filesMatching('META-INF/mods.toml') {
-        expand version: project.version
+        "min_supported_forge_loader_version": project.min_supported_forge_loader_version,
+        "min_supported_forge_version": project.min_supported_forge_version,
+        "minecraft_version": project.minecraft_version,
+        "architectury_version": project.architectury_api_version
+]
+processResources {
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties
+    }
+}
+processGametestResources {
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml']) {
+        expand replaceProperties
     }
 }
 

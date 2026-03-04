@@ -52,6 +52,10 @@ subprojects {
         it.options.release = 17
     }
 
+    test {
+        useJUnitPlatform()
+    }
+
     // Configure Maven publishing.
     publishing {
         publications {
